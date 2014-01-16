@@ -26,6 +26,9 @@ _package_common() {
   mkdir -p "${pkgdir}/opt/fsl/include"  "${pkgdir}/opt/fsl/lib"
   cp -r usr/include/* "${pkgdir}/opt/fsl/include"
   cd usr/lib
+
+  # replace duplicate file with symlink
+  ln -sfr libOpenVG_3D.so libOpenVG.so
   cp -r dri libCLC* libVDK* *GLES* libGL.* libGLSLC* libOpenCL* libOpenVG* "${pkgdir}/opt/fsl/lib"
   mkdir -p "${pkgdir}/opt/fsl/licenses"
   cp "${srcdir}/LICENSE.$pkgbase" "$pkgdir/opt/fsl/licenses"
