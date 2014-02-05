@@ -1,9 +1,11 @@
 # i.MX6 Wandboard
 # Maintainer: CruX <CruX@project-insanity.org.org>
+# Contributor: Jonas Heinrich <onny@project-insanity.org>
 
 buildarch=4
 
 pkgbase=linux-wandboard-fsl
+_pkgname=linux
 _kernelname=${pkgbase#linux}
 _desc="i.MX6 Wandboard, patched by Freescale, John Weber and Stephan Rafin"
 _fslbspver=4.1.0
@@ -15,36 +17,27 @@ url="http://www.kernel.org/"
 license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git' 'uboot-mkimage')
 options=('!strip')
-source=('config' 'https://raw.github.com/Freescale/meta-fsl-arm/1194a1a927b386c460dfc900a52a87b077d7dbb3/recipes-kernel/linux/linux-imx-3.0.35/drm-vivante-Add-00-sufix-in-returned-bus-Id.patch' 'https://raw.github.com/Freescale/meta-fsl-arm/1194a1a927b386c460dfc900a52a87b077d7dbb3/recipes-kernel/linux/linux-imx-3.0.35/ENGR00278350-gpu-viante-4.6.9p13-kernel-part-integra.patch')
-md5sums=('7f40ecc02d1ce469fd824dbd2639ca21'
+source=('git+https://github.com/wolfgar/linux#wandboard_imx_3.0.35_4.1.0'
+        'https://raw.github.com/Freescale/meta-fsl-arm/1194a1a927b386c460dfc900a52a87b077d7dbb3/recipes-kernel/linux/linux-imx-3.0.35/drm-vivante-Add-00-sufix-in-returned-bus-Id.patch'
+        'https://raw.github.com/Freescale/meta-fsl-arm/1194a1a927b386c460dfc900a52a87b077d7dbb3/recipes-kernel/linux/linux-imx-3.0.35/ENGR00278350-gpu-viante-4.6.9p13-kernel-part-integra.patch')
+md5sums=('SKIP'
+         '7f40ecc02d1ce469fd824dbd2639ca21'
          'ea5933e994ecb47409a96c754d61a281'
          '41941771adfed8b55574a7434d2c3393')
 
-_gitname="linux"
-_gitroot="git://github.com/wolfgar"
-_gitbranch="wandboard_imx_3.0.35_4.1.0"
+pkgver() {
+   cd "${srcdir}/${_pkgname}"
+   git describe --long | sed -r 's/([^-]*-g)/r\1/;s/-/./g'
+}
 
 prepare() {
-  cd "${srcdir}"
-
-  msg2 "Connecting to GIT server..."
-  
-  if [[ -d "${_gitname}" ]]; then
-    cd "${_gitname}" && git pull origin ${_gitbranch}
-    msg2 "The local files are updated."
-  else
-    git clone --branch ${_gitbranch} --depth 1 "${_gitroot}/${_gitname}"
-  fi
-  msg2 "GIT checkout done or server timeout." 
-
-  cd "${srcdir}/${_gitname}"
+  cd "${srcdir}/${_pkgname}"
 
   cat "${srcdir}/config" > ./.config
 
   # allow use of 3.10.17 gpu binaries
   patch --ignore-whitespace -p1 < ../drm-vivante-Add-00-sufix-in-returned-bus-Id.patch
   patch --ignore-whitespace -p1 < ../ENGR00278350-gpu-viante-4.6.9p13-kernel-part-integra.patch
-
 
   # add pkgrel to extraversion, reset the file first to avoid multiple suffixes
   git checkout Makefile
@@ -55,7 +48,7 @@ prepare() {
 }
 
 build() {
-  cd "${srcdir}/${_gitname}"
+  cd "${srcdir}/${_pkgname}"
 
   # get kernel version
   make prepare
@@ -92,7 +85,7 @@ _package() {
   conflicts=('linux-omap' 'linux-imx6' 'linux-armada370')
   install=${pkgname}.install
 
-  cd "${srcdir}/${_gitname}"
+  cd "${srcdir}/${_pkgname}"
 
   KARCH=arm
 
@@ -141,7 +134,7 @@ _package-headers() {
   cd "${pkgdir}/usr/lib/modules/${_kernver}"
   ln -sf ../../../src/linux-${_kernver} build
 
-  cd "${srcdir}/${_gitname}"
+  cd "${srcdir}/${_pkgname}"
   install -D -m644 Makefile \
     "${pkgdir}/usr/src/linux-${_kernver}/Makefile"
   install -D -m644 kernel/Makefile \

@@ -1,4 +1,6 @@
 # Maintainer: CruX <crux@project-insanity.org>
+# Contributor: Jonas Heinrich <onny@project-insanity.org>
+
 pkgname=libfslvpuwrap
 pkgver=3.10.17_1.0.0
 _pkgver=1.0.45
@@ -34,7 +36,7 @@ package() {
   mkdir -p "${pkgdir}/opt/fsl/licenses"
   cp "${srcdir}/LICENSE.$pkgname" "$pkgdir/opt/fsl/licenses"
   mkdir -p "${pkgdir}/etc/ld.so.conf.d"
-  echo "/opt/fsl/lib" > "${pkgdir}/etc/ld.so.conf.d/$pkgname.conf"
+  echo "/opt/fsl/lib" > "${pkgdir}/etc/ld.so.conf.d/${pkgname}.conf"
 }
 
 # vim:set ts=2 sw=2 et:

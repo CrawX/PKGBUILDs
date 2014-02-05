@@ -1,4 +1,6 @@
 # Maintainer: CruX <crux@project-insanity.org>
+# Contributor: Jonas Heinrich <onny@project-insanity.org>
+
 pkgbase=gpu-viv-bin-mx6q
 pkgver=3.10.17_1.0.0
 _pkgver=${pkgver/_/-}-beta-hfp
@@ -10,8 +12,7 @@ license=('proprietary')
 depends=("vivante-kernel-driver=${pkgver}")
 source=("http://www.freescale.com/lgfiles/NMG/MAD/YOCTO/${pkgbase}-${_pkgver}.bin" '99-galcore.rules')
 md5sums=('11e844bb6ba04295cdcd78731076c96d'
-       '954de15d387e456a60973f06278e661d')
-
+         '954de15d387e456a60973f06278e661d')
 
 prepare() {
   cd "${srcdir}"

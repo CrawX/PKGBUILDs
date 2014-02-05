@@ -1,4 +1,6 @@
 # Maintainer: CruX <crux@project-insanity.org>
+# Contributor: Jonas Heinrich <onny@project-insanity.org>
+
 pkgname=imx-vpu
 pkgver=3.10.17_1.0.0
 _pkgver=${pkgver/_/-}_beta
@@ -10,7 +12,6 @@ license=('proprietary')
 source=("http://www.freescale.com/lgfiles/NMG/MAD/YOCTO/${pkgname}-${_pkgver}.bin" '99-mxc-vpu.rules')
 md5sums=('7ba78483bd1cf61bb6fce4ed9e9287d6'
           'b749d82b96a323d8f914c63c65de9f92')
-
 
 prepare() {
   cd "${srcdir}"
