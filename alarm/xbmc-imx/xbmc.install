@@ -12,5 +12,10 @@ post_upgrade() {
 
 post_remove() {
   post_install $1
-  echo "You may want to remove xbmc user and group"
+  if getent passwd xbmc >/dev/null 2>&1; then
+	  userdel xbmc
+  fi  
+  if getent group xbmc >/dev/null 2>&1; then
+	  groupdel xbmc
+  fi  
 }

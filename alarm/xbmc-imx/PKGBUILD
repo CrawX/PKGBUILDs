@@ -1,9 +1,9 @@
-
 # Contributor tomasgroth at yahoo.dk
 # Contributor WarheadsSE <max@warheads.net>
 # Maintainer CruX <CruX@project-insanity.org>
 
 pkgname=xbmc-imx-git
+_pkgname=xbmc
 pkgver=13.20140128
 pkgrel=1
 pkgdesc="A software media player and entertainment hub for digital media for the Wandboard"
@@ -21,34 +21,18 @@ optdepends=(
 provides=("xbmc")
 conflicts=("xbmc")
 install="xbmc.install"
-source=('xbmc.service')
+source=('git+https://github.com/wolfgar/xbmc#imx-wip'
+        'xbmc.service')
+md5sums=('SKIP'
+         '36780e43d432c488259d9a899b1bcb28')
 
-md5sums=('36780e43d432c488259d9a899b1bcb28')
-
-# imx-wip branch by Stephan "wolfgar" Rafin
-_gitname="xbmc"
-_gitroot="git://github.com/wolfgar"
-_gitbranch="imx-wip"
-
-_prefix=/usr
+pkgver() {
+   cd "${srcdir}/${_pkgname}"
+   git describe --long | sed -r 's/([^-]*-g)/r\1/;s/-/./g'
+}
 
 prepare() {
-  cd "${srcdir}"
-
-
-  msg2 "Connecting to GIT server..."
-  
-  if [[ -d "${_gitname}" ]]; then
-     cd "${_gitname}" && git pull origin "$_gitbranch"
-     msg2 "The local files are updated."
-  else
-     git clone --branch ${_gitbranch} --depth 1 "${_gitroot}/${_gitname}"
-  fi
-  
-  msg2 "GIT checkout done or server timeout." 
-
-
-  cd "${srcdir}/${_gitname}"
+  cd "${srcdir}/${_pkgname}"
 
   # fix lsb_release dependency
   sed -i -e 's:/usr/bin/lsb_release -d:cat /etc/arch-release:' xbmc/utils/SystemInfo.cpp
@@ -60,11 +44,10 @@ prepare() {
 }
 
 build() {
-  cd "${srcdir}/${_gitname}"
+  cd "${srcdir}/${_pkgname}"
 
   # Bootstrapping XBMC
   ./bootstrap
-
 
   # dirty: copy headers from kernel as we need those but apart from that want to use the ones in /usr/include 
   KERNELSRC=/usr/src/linux-`uname -r`
@@ -75,7 +58,7 @@ build() {
 
   # Configuring XBMC
   export PYTHON_VERSION=2  # external python v2
-  INCLUDES="-I${srcdir}/${_gitname}/linux-includes/include -I/opt/fsl/include" 
+  INCLUDES="-I${srcdir}/${_pkgname}/linux-includes/include -I/opt/fsl/include" 
   export CFLAGS="-Ofast -mfloat-abi=hard -mfpu=vfpv3-d16 -mtls-dialect=gnu -march=armv7-a -mtune=cortex-a9 -pipe -fstack-protector --param=ssp-buffer-size=4 -D_FORTIFY_SOURCE=2 $INCLUDES -Wl,-rpath,/opt/fsl/lib -L/opt/fsl/lib"
   export CPPFLAGS="-Ofast -mfloat-abi=hard -mfpu=vfpv3-d16 -mtls-dialect=gnu -march=armv7-a -mtune=cortex-a9 -fstack-protector --param=ssp-buffer-size=4 -D_FORTIFY_SOURCE=2 $INCLUDES -Wl,-rpath,/opt/fsl/lib -L/opt/fsl/lib"
   export CXXFLAGS="-Ofast -mfloat-abi=hard -mfpu=vfpv3-d16 -mtls-dialect=gnu -march=armv7-a -mtune=cortex-a9 -fstack-protector --param=ssp-buffer-size=4 -D_FORTIFY_SOURCE=2 $INCLUDES -Wl,-rpath,/opt/fsl/lib -L/opt/fsl/lib"
@@ -92,7 +75,7 @@ build() {
 }
 
 package() {
-  cd "${srcdir}/${_gitname}"
+  cd "${srcdir}/${_pkgname}"
   # Running make install
   make DESTDIR="${pkgdir}" install
 
@@ -108,7 +91,7 @@ package() {
   sed -i -e "s/lsb_release -a 2> \/dev\/null | sed -e 's\/\^\/    \/'/cat \/etc\/arch-release/g" "${pkgdir}${_prefix}/bin/xbmc"
 
   # Tools
-  install -D -m 0755 "${srcdir}/${_gitname}/tools/TexturePacker/TexturePacker" "${pkgdir}${_prefix}/share/xbmc/"
+  install -D -m 0755 "${srcdir}/${_pkgname}/tools/TexturePacker/TexturePacker" "${pkgdir}${_prefix}/share/xbmc/"
 
   # Licenses
   install -d -m 0755 "${pkgdir}${_prefix}/share/licenses/${pkgname}"
@@ -117,7 +100,7 @@ package() {
   done
 
   # systemd stuff
-  install -Dm0644 $srcdir/xbmc.service $pkgdir/usr/lib/systemd/system/xbmc.service
+  install -Dm0644 "${srcdir}/xbmc.service" "${pkgdir}/usr/lib/systemd/system/xbmc.service"
 
 }
 
