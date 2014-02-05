@@ -1,4 +1,6 @@
 # Maintainer: CruX <crux@project-insanity.org>
+# Contributor: Jonas Heinrich <onny@project-insanity.org>
+
 pkgname=libfslvpuwrap
 pkgver=3.10.17_1.0.0
 _pkgver=1.0.45

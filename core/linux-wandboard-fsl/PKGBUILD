@@ -1,5 +1,6 @@
 # i.MX6 Wandboard
 # Maintainer: CruX <CruX@project-insanity.org.org>
+# Contributor: Jonas Heinrich <onny@project-insanity.org>
 
 buildarch=4
 

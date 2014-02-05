@@ -1,6 +1,7 @@
+# Maintainer CruX <CruX@project-insanity.org>
 # Contributor tomasgroth at yahoo.dk
 # Contributor WarheadsSE <max@warheads.net>
-# Maintainer CruX <CruX@project-insanity.org>
+# Contributor: Jonas Heinrich <onny@project-insanity.org>
 
 pkgname=xbmc-imx-git
 _pkgname=xbmc
