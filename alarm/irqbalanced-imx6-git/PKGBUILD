@@ -1,0 +1,41 @@
+# Maintainer: CruX <crux@project-insanity.org>
+
+pkgname=irqbalanced-imx6-git
+_commit=d9311dbcc0ee396d45396bff7df7c854856d0d0a
+pkgver=r10.d9311db
+pkgrel=1
+pkgdesc="irqbalanced fork for i.MX6 devices"
+arch=('armv7h')
+url="https://github.com/dv1/irqbalanced"
+license=('GPL')
+depends=(glib2 libcap-ng)
+makedepends=(pkgconfig)
+conflicts=(irqbalance)
+
+source=(
+        "$pkgname::git://github.com/dv1/irqbalanced.git"
+	irqbalanced-imx6.service
+)
+
+md5sums=('SKIP'
+         'f9cc3512e9089033c88f20e9ddaeaff6')
+
+pkgver() {
+  cd "$pkgname"
+  printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+build() {
+  cd "$srcdir/$pkgname"
+  ./autogen.sh
+  ./configure --prefix=/usr --sbindir=/usr/bin
+  make
+}
+
+package() {
+  cd "$srcdir/$pkgname"
+  make install install-man DESTDIR="$pkgdir"
+  install -D -m644 ../irqbalanced-imx6.service "$pkgdir"/usr/lib/systemd/system/irqbalanced-imx6.service
+  install -D -m 644 irqbalance.1 "${pkgdir}"/usr/share/man/man1/irqbalance.1
+}
+
