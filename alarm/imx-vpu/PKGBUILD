@@ -3,22 +3,21 @@
 
 buildarch=4
 pkgname=imx-vpu
-pkgver=3.10.17_1.0.0
-_pkgver=${pkgver/_/-}
-pkgrel=2
+pkgver=3.10.53_1.1.0
+_pkgver=5.4.27
+pkgrel=1
 pkgdesc="Freescale proprietary extensions for i.MX6 SoC"
 url="https://community.freescale.com/docs/DOC-95560"
 arch=('armv7h')
 license=('proprietary')
 source=("http://www.freescale.com/lgfiles/NMG/MAD/YOCTO/${pkgname}-${_pkgver}.bin" '99-mxc-vpu.rules')
-md5sums=('71ea1b803864101ebf88a1bab45514d2'
+md5sums=('3dc36b427fc2b91af05504f39f8f964f'
           'b749d82b96a323d8f914c63c65de9f92')
 
 
 prepare() {
   cd "${srcdir}"
-  #chmod for execution, library is packed as binary to accept EULA
-#  chmod +x ${pkgname}-${_pkgver}.bin
+  #extract the sources
   sh ${pkgname}-${_pkgver}.bin --force --auto-accept
   sed -n '/EOEULA/,/EOEULA/p' ${pkgname}-${_pkgver}.bin | grep -v EOEULA > LICENSE.$pkgname
 }
