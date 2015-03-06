@@ -16,14 +16,19 @@ license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git')
 options=('!strip')
 source=("https://github.com/CrawX/linux-linaro-stable-mx6/archive/${_commit}.tar.gz"
-        'config')
+        'config'
+        'hdmi-cec.patch')
 md5sums=('4b98802f850b4ff161dda96f15e7cb39'
-         '011296a9d9aaaf632ceff509b6bb566c')
+         '011296a9d9aaaf632ceff509b6bb566c'
+         '9228f1d9079a2ca7485c102d1a440ac5')
 
 prepare() {
   cd "${srcdir}/${_srcname}"
 
   cat "${srcdir}/config" > ./.config
+  
+  # fix hdmi cec
+  patch -l -p1 <../hdmi-cec.patch
 
   # add pkgrel to extraversion
   sed -ri "s|^(EXTRAVERSION =)(.*)|\1 \2-${pkgrel}|" Makefile

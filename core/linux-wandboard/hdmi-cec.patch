@@ -1,0 +1,36 @@
+diff --git a/arch/arm/boot/dts/imx6q-wandboard.dts b/arch/arm/boot/dts/imx6q-wandboard.dts
+index 48dc770..b3070c5 100644
+--- a/arch/arm/boot/dts/imx6q-wandboard.dts
++++ b/arch/arm/boot/dts/imx6q-wandboard.dts
+@@ -44,3 +44,9 @@
+ &sata {
+        status = "okay";
+ };
++
++&hdmi_cec {
++       pinctrl-names = "default";
++       pinctrl-0 = <&pinctrl_hdmi_cec_2>;
++       status = "okay";
++};
+diff --git a/arch/arm/boot/dts/imx6qdl-wandboard.dtsi b/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
+index f164c0a..5eaada5 100644
+--- a/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
+@@ -805,6 +805,19 @@ reference manual.
+                 };
+         };
+ 
++        hdmi_cec {
++                pinctrl_hdmi_cec_1: hdmicecgrp-1 {
++                        fsl,pins = <
++                                MX6QDL_PAD_EIM_A25__HDMI_TX_CEC_LINE 0x1f8b0
++                        >;
++                };
++
++                pinctrl_hdmi_cec_2: hdmicecgrp-2 {
++                        fsl,pins = <
++                                MX6QDL_PAD_KEY_ROW2__HDMI_TX_CEC_LINE 0x1f8b0
++                        >;
++                };
++        };
+ };
