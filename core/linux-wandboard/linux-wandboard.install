@@ -2,7 +2,7 @@
 # arg 2:  the old package version
 
 KERNEL_NAME=-wandboard
-KERNEL_VERSION=3.14.14-1
+KERNEL_VERSION=3.14.14-2
 
 post_install () {
   # updating module dependencies
