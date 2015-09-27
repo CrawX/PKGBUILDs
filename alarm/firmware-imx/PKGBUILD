@@ -3,15 +3,15 @@
 
 buildarch=4
 pkgname=firmware-imx
-pkgver=3.14.28_1.0.0
-_pkgver=${pkgver/_/-}
+pkgver=3.14.28
+_pkgver=5.0
 pkgrel=1
 pkgdesc="Freescale proprietary firmware for i.MX6 SoC"
 url="https://community.freescale.com/docs/DOC-95560"
 arch=('armv7h')
 license=('proprietay')
 source=("http://www.freescale.com/lgfiles/NMG/MAD/YOCTO/${pkgname}-${_pkgver}.bin")
-md5sums=('6e700f3d3a6482db08d5aabee7751630')
+md5sums=('543210d17971f61c7c1829d2c160dc4e')
 
 prepare() {
   cd "${srcdir}"
