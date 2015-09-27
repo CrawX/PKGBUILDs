@@ -2,10 +2,10 @@
 # Contributor: pepedog at archlinuxarm dot com
 
 buildarch=4
-pkgbase=gpu-viv-bin-mx6q
-pkgver=3.10.17_1.0.0
-_pkgver=${pkgver//_/-}-hfp
-pkgrel=2
+pkgbase=imx-gpu-viv
+pkgver=3.14.28
+_pkgver=5.0.11.p4.5-hfp
+pkgrel=1
 pkgdesc="Freescale proprietary Vivante GPU drivers for i.MX6 Quad SoC"
 
 # filesystem prefix for the include files and license
@@ -30,9 +30,8 @@ source=("http://www.freescale.com/lgfiles/NMG/MAD/YOCTO/${pkgbase}-${_pkgver}.bi
 	"vg.pc"
 	"vg_x11.pc"
 	"wayland-egl.pc"
-	"wayland-viv.pc"
-	"directfbrc")
-md5sums=('8b9c4f6181acf46028e39508a970ecc1'
+	"wayland-viv.pc")
+md5sums=('8314408acb6b3bc58fcbbb8a0f48b54b'
          'ab0afbd747e802f0bc95d31494d3b559'
          'd56637776b8fa659d7b84f45d006dad2'
          '24ea66e2601cd3a1729c16e7e4052425'
@@ -44,8 +43,7 @@ md5sums=('8b9c4f6181acf46028e39508a970ecc1'
          '101994c11d92ff4bcd86ea25f3afa0f0'
          '36962675b16862e33f6d250865b0d6ba'
          '9e0ce33723aac9e9829a9322e38f6e32'
-         '8994b882eaad8ee95ccb759505bdcf58'
-         '7e56b987de6a243023c3313c36df57c5')
+         '8994b882eaad8ee95ccb759505bdcf58')
 
 prepare() {
   cd "${srcdir}"
@@ -58,18 +56,19 @@ prepare() {
 }
 
 _package_common() {
-  provides=('gpu-viv-bin-mx6q=4.1.0' 'libgl')
+  provides=('gpu-viv-bin-mx6q=4.1.0' 'libegl' 'libgles' 'libgl' 'mesa-libgl' 'mesa')
   conflicts=('gpu-viv-bin-mx6q' 'mesa-libgl')
-  cd "${pkgbase}-${_pkgver}"
+  cd "${pkgbase}-${_pkgver}/gpu-core"
   mkdir -p "${pkgdir}${_install_prefix}/include"  "${pkgdir}${_install_exec_prefix}/lib"
   cp -r usr/include/* "${pkgdir}${_install_prefix}/include"
   cd usr/lib
-  cp -r libCLC* libVDK* *GLES* libGL.* libGLSLC* libOpenCL* libOpenVG_* "${pkgdir}${_install_exec_prefix}/lib"
+  cp -r libCLC* libVDK* *GLES* libGL.* libGLSLC* libOpenCL* libOpenVG.*d.so libGAL_egl.*.so libVSC.so "${pkgdir}${_install_exec_prefix}/lib"
   mkdir -p "${pkgdir}${_install_prefix}/licenses"
   cp "${srcdir}/LICENSE.$pkgbase" "$pkgdir${_install_prefix}/licenses"
   mkdir -p "${pkgdir}/etc/ld.so.conf.d"
   echo "${_install_prefix}/lib" > "${pkgdir}/etc/ld.so.conf.d/$pkgbase.conf"
 
+  install -D -m0644 "../../etc/Vivante.icd" "${pkgdir}/etc/Vivante.icd"
   install -D -m0644 "${srcdir}/98-galcore.rules" "${pkgdir}/usr/lib/udev/rules.d/98-galcore.rules"
 
 }
@@ -90,17 +89,23 @@ _package_common_post() {
   ln -sf libGLESv2.so.2.0.0 libGLESv2.so.2
   ln -sf libGLESv2.so.2.0.0 libGLESv2.so
 
-  ln -sf libOpenVG_3D.so libOpenVG.so
+  ln -sf libOpenVG.3d.so libOpenVG.so
+  if [[ "${backend}" == "x11" ]]; then
+  	mv libGAL_egl.dri.so libGAL_egl.so
+  else
+	rm libGAL_egl.dri.so
+  	mv libGAL_egl.${backend}.so libGAL_egl.so
+  fi
 
   for backend in wl x11 fb dfb; do
-    find "${pkgdir}${_install_exec_prefix}/lib/" -name "*-$backend.so" -exec rm '{}' ';'
+    find "${pkgdir}${_install_exec_prefix}/lib/" -regex ".*[.-]${backend}.so" -exec rm '{}' ';'
   done
 
   find "${pkgdir}${_install_exec_prefix}/lib/" -type f -exec chmod 644 {} \;
   find "${pkgdir}${_install_prefix}/include/" -type f -exec chmod 644 {} \;
 }
 
-package_gpu-viv-bin-mx6q-fb() {
+package_imx-gpu-viv-fb() {
   backend=fb
   _package_common
   cp -r *-fb* "${pkgdir}${_install_exec_prefix}/lib"
@@ -116,7 +121,7 @@ package_gpu-viv-bin-mx6q-fb() {
 }
 
 
-package_gpu-viv-bin-mx6q-x11() {
+package_imx-gpu-viv-x11() {
   backend=x11
   _package_common
   cp -r dri "${pkgdir}${_install_exec_prefix}/lib"
@@ -133,7 +138,7 @@ package_gpu-viv-bin-mx6q-x11() {
   _package_common_post
 }
 
-package_gpu-viv-bin-mx6q-wl() {
+package_imx-gpu-viv-wl() {
   backend=wl
   _package_common
   cp -r *-wl* "${pkgdir}${_install_exec_prefix}/lib"
@@ -152,24 +157,36 @@ package_gpu-viv-bin-mx6q-wl() {
 }
 
 
-package_gpu-viv-bin-mx6q-dfb() {
+package_imx-gpu-viv-dfb() {
   backend=dfb
   _package_common
   cp -r *-dfb* directfb* "${pkgdir}${_install_exec_prefix}/lib"
   install -d "${pkgdir}/etc"
-  install -m0644 "${srcdir}/directfbrc" "${pkgdir}/etc/directfbrc"
+  install -m0644 "../../etc/directfbrc" "${pkgdir}/etc/directfbrc"
   _package_common_post
 }
 
 
-package_gpu-viv-bin-mx6q-samples() {
+package_imx-gpu-viv-samples() {
   cd "${pkgbase}-${_pkgver}"
   mkdir -p "${pkgdir}${_install_samples_prefix}/viv_samples"
-  cp -r opt/viv_samples/* "${pkgdir}${_install_samples_prefix}/viv_samples"
+  cp -r gpu-demos/opt/viv_samples/* "${pkgdir}${_install_samples_prefix}/viv_samples"
+}
+
+package_imx-gpu-viv-g2d() {
+  pkgdesc="Freescale proprietary Vivante 2D graphics drivers for i.MX6 Quad SoC"
+  cd ${srcdir}/"${pkgbase}-${_pkgver}/g2d"
+  mkdir -p "${pkgdir}${_install_prefix}/include" "${pkgdir}${_install_exec_prefix}/lib"
+  cp -r usr/include/* "${pkgdir}${_install_prefix}/include"
+  cp -r usr/lib/* "${pkgdir}${_install_prefix}/lib"
+  mkdir -p "${pkgdir}${_install_prefix}/licenses"
+  cp "${srcdir}/LICENSE.${pkgbase}" "$pkgdir${_install_prefix}/licenses/LICENSE.${pkgname}"
+  mkdir -p "${pkgdir}/etc/ld.so.conf.d"
+  echo "${_install_prefix}/lib" > "${pkgdir}/etc/ld.so.conf.d/$pkgname.conf"
 }
 
 
-pkgname=("${pkgbase}-x11" "${pkgbase}-fb" "${pkgbase}-dfb" "${pkgbase}-wl" "${pkgbase}-samples")
+pkgname=("${pkgbase}-x11" "${pkgbase}-fb" "${pkgbase}-dfb" "${pkgbase}-wl" "${pkgbase}-samples" "${pkgbase}-g2d")
 
 # vim:set ts=2 sw=2 et:
 
