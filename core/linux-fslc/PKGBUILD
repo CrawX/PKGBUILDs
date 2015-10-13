@@ -2,11 +2,11 @@
 buildarch=4
 
 pkgbase=linux-fslc
-_commit=e9362bbb3a4cfcde52b1e09695f5f800f92d24c3
+_commit=63f7f31a35343bcdf63875654310181fdfc7057a
 _srcname=linux-fslc-${_commit}
 _kernelname=${pkgbase#linux}
 _desc="freescale community kernel adopted by SolidRun, wandboard version"
-pkgver=3.14.x
+pkgver=3.14.53
 pkgrel=1
 arch=('armv7h')
 url="https://github.com/CrawX/linux-fslc/tree/wandboard"
@@ -14,9 +14,9 @@ license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git')
 options=('!strip')
 source=("https://github.com/CrawX/linux-fslc/archive/${_commit}.tar.gz"
-        'config')
-md5sums=('a2400521c04666ae7c8ac295763adcbc'
-         '1132bbee47b1b7c1364ff218d8f88926')
+	'config')
+md5sums=('83f18ce64ef2480a21b5c520ca5325e7'
+         '15fd2cf50552bfc508f72ca1d4550986')
 
 prepare() {
   cd "${srcdir}/${_srcname}"
@@ -28,14 +28,10 @@ prepare() {
 
   # don't run depmod on 'make install'. We'll do this ourselves in packaging
   sed -i '2iexit 0' scripts/depmod.sh
-
-  patch -p1 -i ../full.patch
 }
 
 build() {
   cd "${srcdir}/${_srcname}"
-
-  #make imx_v7_cbi_hb_defconfig
 
   # get kernel version
   make prepare
