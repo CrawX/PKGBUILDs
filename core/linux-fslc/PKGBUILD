@@ -2,11 +2,11 @@
 buildarch=4
 
 pkgbase=linux-fslc
-_commit=63f7f31a35343bcdf63875654310181fdfc7057a
+_commit=69278e5f4b335de8c9f37b448013c56ebfd2f2e2
 _srcname=linux-fslc-${_commit}
 _kernelname=${pkgbase#linux}
 _desc="freescale community kernel adopted by SolidRun, wandboard version"
-pkgver=3.14.53
+pkgver=3.14.54
 pkgrel=1
 arch=('armv7h')
 url="https://github.com/CrawX/linux-fslc/tree/wandboard"
@@ -15,8 +15,8 @@ makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git')
 options=('!strip')
 source=("https://github.com/CrawX/linux-fslc/archive/${_commit}.tar.gz"
 	'config')
-md5sums=('83f18ce64ef2480a21b5c520ca5325e7'
-         '15fd2cf50552bfc508f72ca1d4550986')
+md5sums=('f2f524fb6a3f79fc24516f6e582690e8'
+         '9506febc099e02e391d4cf6d582c0668')
 
 prepare() {
   cd "${srcdir}/${_srcname}"
@@ -35,6 +35,9 @@ build() {
 
   # get kernel version
   make prepare
+
+  # to use recommended imx6 config
+  # make mx_v7_cbi_hb_defconfig
 
   # load configuration
   # Configure the kernel. Replace the line below with one of your choice.
@@ -263,6 +266,9 @@ _package-headers() {
 
   # remove unneeded architectures
   rm -rf "${pkgdir}"/usr/src/linux-${_kernver}/arch/{alpha,arm26,avr32,blackfin,cris,frv,h8300,ia64,m32r,m68k,m68knommu,mips,microblaze,mn10300,parisc,powerpc,ppc,s390,sh,sh64,sparc,sparc64,um,v850,x86,xtensa}
+
+  # install cryptodev header
+  install -D -m 0644 "include/uapi/linux/crypto/cryptodev.h" "${pkgdir}/usr/include/crypto/cryptodev.h"
 }
 
 pkgname=("${pkgbase}" "${pkgbase}-headers")
