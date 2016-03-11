@@ -1,0 +1,118 @@
+From 8c21aeb638f70d6fe0d96af8c44d6463715285f3 Mon Sep 17 00:00:00 2001
+From: Jon Nettleton <jon.nettleton@gmail.com>
+Date: Fri, 18 Dec 2015 08:14:36 +0100
+Subject: [PATCH] Test optimization for Cortex-A9 cpus
+
+I have found that on Cortex-A9 cpus the performance of memcpy
+started slowing down on transfers greater than 16KB.  After 22KB
+the performance of a straight neon implementation with no
+prefetching was faster than both aligned and nonaligned glibc
+copies.  This is a quick short circuit for those cases.
+
+The neon mempcy implementation I am using is copyrighted in 2009 as follows.
+
+NEON code contributed by Nokia Corporation (written by Siarhei Siamashka)
+
+---
+ sysdeps/arm/armv7/multiarch/memcpy_impl.S | 79 +++++++++++++++++++++++++++++++
+ 1 file changed, 79 insertions(+)
+
+diff --git a/sysdeps/arm/armv7/multiarch/memcpy_impl.S b/sysdeps/arm/armv7/multiarch/memcpy_impl.S
+index 6e751cf..239b80d 100644
+--- a/sysdeps/arm/armv7/multiarch/memcpy_impl.S
++++ b/sysdeps/arm/armv7/multiarch/memcpy_impl.S
+@@ -298,6 +298,10 @@
+ ENTRY(memcpy)
+ 
+ 	mov	dst, dstin	/* Preserve dstin, we need to return it.  */
++#ifdef MEMCPY_NEON
++	cmp	count, #20480
++	bge	.Lcpy_neon_noprefetch
++#endif
+ 	cmp	count, #64
+ 	bge	.Lcpy_not_short
+ 	/* Deal with small copies quickly by dropping straight into the
+@@ -913,5 +917,80 @@ ENTRY(memcpy)
+ 	bne	.Ltail63unaligned
+ 	bx	lr
+ 
++#ifdef MEMCPY_NEON
++.Lcpy_neon_noprefetch:
++	/* Do bigger memory copies using NEON instructions */
++	tst     dstin, #1
++	beq     1f
++	vld1.8  {d0[0]}, [src]!
++	vst1.8  {d0[0]}, [dst]!
++	sub     count, count, #1
++1:
++	tst     dst, #2
++	beq     1f
++	vld2.8  {d0[0], d1[0]}, [src]!
++	vst2.8  {d0[0], d1[0]}, [dst]!
++	sub     count, count, #2
++1:
++	tst     dst, #4
++	beq     1f
++	vld4.8  {d0[0], d1[0], d2[0], d3[0]}, [src]!
++	vst4.8  {d0[0], d1[0], d2[0], d3[0]}, [dst, :32]!
++	sub     count, count, #4
++1:
++	tst     dst, #8
++	beq     1f
++	vld1.8  {d0}, [src]!
++	vst1.8  {d0}, [dst, :64]!
++	sub     count, count, #8
++1:
++	subs    count, count, #32
++	blt     3f
++	mov     tmp1, #32
++1:
++	vld1.8  {d0-d3}, [src]!
++	cmp     tmp1, #(320 - 32)
++	pld     [src, tmp1]
++	addle   tmp1, tmp1, #32
++	sub     count, count, #32
++	vst1.8  {d0-d3}, [dst, :128]!
++	cmp     count, tmp1
++	bge     1b
++	cmp     count, #0
++	blt     3f
++1:
++	vld1.8  {d0-d3}, [src]!
++	subs    count, count, #32
++	vst1.8  {d0-d3}, [dst, :128]!
++	bge     1b
++3:
++	tst     count, #16
++	beq     1f
++	vld1.8  {d0, d1}, [src]!
++	vst1.8  {d0, d1}, [dst, :128]!
++1:
++	tst     count, #8
++	beq     1f
++	vld1.8  {d0}, [src]!
++	vst1.8  {d0}, [dst, :64]!
++1:
++	tst     count, #4
++	beq     1f
++	vld4.8  {d0[0], d1[0], d2[0], d3[0]}, [src]!
++	vst4.8  {d0[0], d1[0], d2[0], d3[0]}, [dst, :32]!
++1:
++	tst     count, #2
++	beq     1f
++	vld2.8  {d0[0], d1[0]}, [src]!
++	vst2.8  {d0[0], d1[0]}, [dst]!
++1:
++	tst     count, #1
++	beq     1f
++	vld1.8  {d0[0]}, [src]!
++	vst1.8  {d0[0]}, [dst]!
++1:
++	bx      lr
++#endif
++
+ END(memcpy)
+ libc_hidden_builtin_def (memcpy)
+-- 
+2.5.0
+
