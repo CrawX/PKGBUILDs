@@ -5,7 +5,7 @@ buildarch=4
 pkgbase=imx-gpu-viv
 pkgver=3.14.28
 _pkgver=5.0.11.p4.5-hfp
-pkgrel=1
+pkgrel=2
 pkgdesc="Freescale proprietary Vivante GPU drivers for i.MX6 Quad SoC"
 
 # filesystem prefix for the include files and license
@@ -32,7 +32,7 @@ source=("http://www.freescale.com/lgfiles/NMG/MAD/YOCTO/${pkgbase}-${_pkgver}.bi
 	"wayland-egl.pc"
 	"wayland-viv.pc")
 md5sums=('8314408acb6b3bc58fcbbb8a0f48b54b'
-         'ab0afbd747e802f0bc95d31494d3b559'
+         '88fa9c5db8a3f6a265601cbdfcd907d1'
          'd56637776b8fa659d7b84f45d006dad2'
          '24ea66e2601cd3a1729c16e7e4052425'
          '9a815a054d9a2b94e78addd816fbb8a8'
