@@ -2,21 +2,21 @@
 buildarch=4
 
 pkgbase=linux-fslc
-_commit=69278e5f4b335de8c9f37b448013c56ebfd2f2e2
+_commit=f2cda6ebf6f52222259a10b96bfcc78a93f5099f
 _srcname=linux-fslc-${_commit}
 _kernelname=${pkgbase#linux}
 _desc="freescale community kernel adopted by SolidRun, wandboard version"
-pkgver=3.14.54
-pkgrel=1
+pkgver=3.14.60
+pkgrel=2
 arch=('armv7h')
 url="https://github.com/CrawX/linux-fslc/tree/wandboard"
 license=('GPL2')
-makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git')
+makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc')
 options=('!strip')
 source=("https://github.com/CrawX/linux-fslc/archive/${_commit}.tar.gz"
 	'config')
-md5sums=('f2f524fb6a3f79fc24516f6e582690e8'
-         '9506febc099e02e391d4cf6d582c0668')
+sha256sums=('3aa1bbf5de495bca36f5d5d87bdd40a87c5b7a01dea722cfb7954004e14ed430'
+            '9721ca41cbe265ef569f9b6cd327fef922b1885b333af60eff13e6628c49428c')
 
 prepare() {
   cd "${srcdir}/${_srcname}"
